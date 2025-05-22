@@ -15,7 +15,7 @@ DEFAULT_CAMERA_CONFIG = {
 class MyRobotEnv(MujocoEnv):
     def __init__(
         self, 
-        xml_path = "/workspace/ros2_ws/src/airhockey2025/ka/assets/main.xml",
+        xml_path = "/workspace/RL-hockey/assets/main.xml",
         frame_skip: int = 5,
         default_camera_config: Dict[str, Union[float, int]] = DEFAULT_CAMERA_CONFIG,
         **kwargs,

@@ -67,4 +67,5 @@ def train(model_path=None, train=True):
     render(images)
 
 if __name__=="__main__":
-    train("./models/sac_airhockey_final", False)
+    # train("./models/sac_airhockey_final", False)
+    train()
