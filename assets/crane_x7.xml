@@ -38,7 +38,7 @@
     <!-- <geom name="ground" type="plane" pos="0 0 -0.1" size="100 100 0.001" quat="1 0 0 0" material="matplane" condim="3" conaffinity="15" /> -->
     <camera name="fixed" pos="0 -3.0 0.5678935698520802" xyaxes="1 0 0 0 0 1" />
     <camera name="track" mode="trackcom" pos="0 -3.0 0.5678935698520802" xyaxes="1 0 0 0 0 1" />
-    <body name="root" pos="-1 0 0.1" quat="1 0 0 0">
+    <body name="root" pos="-1.1 0 0.03" quat="1 0 0 0">
       <!-- <freejoint name="root" /> -->
       <site name="imu" size="0.01" pos="0 0 0" />
       <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="mounting_plate" contype="1" conaffinity="0" density="0" group="1" class="visualgeom" />
@@ -111,9 +111,9 @@
                       <geom type="mesh" rgba="1 0.3 0.3 1" mesh="wide_two_finger_gripper_finger_b" quat="0.707107 0.707106 0 0" />
                     </body>
                     <body name="racket" pos="0 0 0">
-                      <geom name="racket_handle" type="cylinder" size="0.01 0.1" pos="0 0 0" rgba="1 0.3 0.3 1" />
+                      <geom name="racket_handle" type="cylinder" size="0.01 0.02" pos="0 0 0" rgba="1 0.3 0.3 1" />
                       <geom name="racket_head" type="cylinder" size="0.05 0.01" pos="0 0 0.1" rgba="1 0.3 0.3 1" />
-                      <site name="ee_site" pos="0 0 0" size="0.01" rgba="0 1 0 1" />
+                      <site name="ee_site" pos="0 0 0.1" size="0.01" rgba="0 1 0 1" />
                     </body>
                   </body>
                 </body>

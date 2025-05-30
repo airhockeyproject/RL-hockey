@@ -45,7 +45,7 @@ def train_rl_agent(model_path=None, train=True, total_timesteps=500000):
 
     # train.py の train_rl_agent 関数内
     # ...
-    num_envs = 4
+    num_envs = 16
     env = DummyVecEnv([make_env for _ in range(num_envs)])
     env = VecMonitor(env, "logs_hockey/monitor")
 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     # --- モードを選択 ---
 
     # Option 1: 新規に学習を開始
-    train_rl_agent(train=True, total_timesteps=100000) # ステップ数を増やす
+    train_rl_agent(train=True, total_timesteps=1) # ステップ数を増やす
 
     # Option 2: 既存モデルをロードして学習を再開
     #train_rl_agent(model_path="./models_hockey/sac_hockey_XXXXX.zip", train=True)
