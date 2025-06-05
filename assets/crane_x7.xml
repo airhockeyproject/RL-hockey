@@ -90,7 +90,7 @@
                 <geom type="mesh" rgba="1 0.3 0.3 1" mesh="rtcorp_logo_rabbit" pos="0 -0.0345 0.065" quat="0.500001 0.5 -0.5 0.499999" />
                 <body name="crane_x7_wrist_link" pos="0 0 0.129">
                   <inertial pos="0.0061 0.000826 -0.00355" quat="-0.0636037 0.712374 0.0304283 0.69825" mass="0.14" diaginertia="7.35371e-05 6.16647e-05 3.96983e-05" />
-                  <joint name="crane_x7_lower_arm_revolute_part_joint" pos="0 0 0" axis="0 -1 0" range="-1.5708 1.5708" actuatorfrcrange="-4 4" damping="1e-06" frictionloss="0.2" />
+                  <joint name="crane_x7_lower_arm_revolute_part_joint" pos="0 0 0" axis="0 -1 0" range="-2.74017 2.74017" actuatorfrcrange="-4 4" damping="1e-06" frictionloss="0.2" />
                   <geom quat="0.707107 0.707106 0 0" type="mesh" rgba="0.95 0.95 0.95 1" mesh="wrist" contype="1" conaffinity="0" density="0" group="1" class="visualgeom" />
                   <geom type="mesh" rgba="0.95 0.95 0.95 1" mesh="wrist" quat="0.707107 0.707106 0 0" />
                   <body name="crane_x7_gripper_base_link" pos="0 0 0.019">
@@ -110,8 +110,8 @@
                       <geom quat="0.707107 0.707106 0 0" type="mesh" rgba="1 0.3 0.3 1" mesh="wide_two_finger_gripper_finger_b" contype="1" conaffinity="0" density="0" group="1" class="visualgeom" />
                       <geom type="mesh" rgba="1 0.3 0.3 1" mesh="wide_two_finger_gripper_finger_b" quat="0.707107 0.707106 0 0" />
                     </body>
-                    <body name="racket" pos="0 0 0">
-                      <geom name="racket_handle" type="cylinder" size="0.01 0.02" pos="0 0 0" rgba="1 0.3 0.3 1" />
+                    <body name="racket" pos="0 0 0" >
+                      <geom name="racket_handle" type="cylinder" size="0.01 0.01" pos="0 0 0" rgba="1 0.3 0.3 1" />
                       <geom name="racket_head" type="cylinder" size="0.05 0.01" pos="0 0 0.1" rgba="1 0.3 0.3 1" />
                       <site name="ee_site" pos="0 0 0.1" size="0.01" rgba="0 1 0 1" />
                     </body>
