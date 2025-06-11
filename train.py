@@ -27,7 +27,7 @@ def train(model_path=None, train=True):
     os.makedirs("logs", exist_ok=True)
     
     # 並列数を指定（CPUコア数に応じて調整）
-    num_envs = 8
+    num_envs = 24
     env = SubprocVecEnv([make_env for _ in range(num_envs)])
     env = VecMonitor(env, "logs/monitor")
     
@@ -47,7 +47,7 @@ def train(model_path=None, train=True):
         model = SAC.load(model_path, env, Verbose=True, device="cuda")
 
     if train:
-        model.learn(total_timesteps=100000, callback=checkpoint_callback)
+        model.learn(total_timesteps=1000000, callback=checkpoint_callback)
         model.save("./models/sac_airhockey_final")
     
     
