@@ -30,7 +30,7 @@
         <body name="table">
             <body name="table_surface">
                 <geom name="surface" type="box" material="white" size="1.064 0.609 0.0505" pos="0 0 -0.0505"
-                      condim="4" friction="0.0000001 0.0000001 0.0" priority="1"
+                      condim="4" friction="0.08 0.08 0.0" priority="1"
                       solref="0.0125 0.5" solimp="0.9 0.999 0.001 0.5 2"/>
             </body>
             <body name="rim">
@@ -57,8 +57,8 @@
         </body>
 
         <body name="base" pos="0 0 0">
-            <joint name="puck_x" type="slide" axis="1 0 0" damping="0.0000001" limited="false"/>
-            <joint name="puck_y" type="slide" axis="0 1 0" damping="0.0000001" limited="false"/>
+            <joint name="puck_x" type="slide" axis="1 0 0" damping="0.005" limited="false"/>
+            <joint name="puck_y" type="slide" axis="0 1 0" damping="0.005" limited="false"/>
             <joint name="puck_yaw" type="hinge" axis="0 0 1" damping="2e-6" limited="false"/>
             <body name="puck">
                 <geom pos="0 0 0.01" name="puck" type="cylinder" rgba="0 0 0 0" size="0.03165 0.01"

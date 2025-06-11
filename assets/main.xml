@@ -1,5 +1,5 @@
 <mujoco model="air_hockey_robot_env">
-    <compiler angle="radian" coordinate="local" meshdir="/workspace/ros2_ws/src/airhockey2025/ka/assets/meshes"/>
+    <compiler angle="radian" coordinate="local" meshdir="/workspace/ros2_ws/src/RL-hockey/assets/meshes"/>
     <option timestep="0.002"/>
 
     <include file="patched_table.xml"/>

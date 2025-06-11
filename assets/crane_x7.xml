@@ -24,9 +24,9 @@
     <mesh name="rtcorp_logo_name" file="rtcorp_logo_name.stl" />
     <mesh name="rtcorp_logo_rabbit" file="rtcorp_logo_rabbit.stl" />
     <mesh name="wrist" file="wrist.stl" />
-    <mesh name="wide_two_finger_gripper_actuator" file="wide_two_finger_gripper_actuator.stl" />
-    <mesh name="wide_two_finger_gripper_finger_a" file="wide_two_finger_gripper_finger_a.stl" />
-    <mesh name="wide_two_finger_gripper_finger_b" file="wide_two_finger_gripper_finger_b.stl" />
+    <mesh name="EE_arm" file="EE_arm.stl" />
+    <mesh name="EE_mallet_foam" file="EE_mallet_foam.stl" />
+    
     <texture name="texplane" type="2d" builtin="checker" rgb1=".0 .0 .0" rgb2=".8 .8 .8" width="100" height="100" />
     <material name="matplane" reflectance="0." texture="texplane" texrepeat="1 1" texuniform="true" />
     <material name="visualgeom" rgba="0.5 0.9 0.2 1" />
@@ -38,8 +38,7 @@
     <!-- <geom name="ground" type="plane" pos="0 0 -0.1" size="100 100 0.001" quat="1 0 0 0" material="matplane" condim="3" conaffinity="15" /> -->
     <camera name="fixed" pos="0 -3.0 0.5678935698520802" xyaxes="1 0 0 0 0 1" />
     <camera name="track" mode="trackcom" pos="0 -3.0 0.5678935698520802" xyaxes="1 0 0 0 0 1" />
-    <body name="root" pos="1 0 0.1" quat="1 0 0 0">
-      <!-- <freejoint name="root" /> -->
+    <body name="root" pos="-1.13 0 0.0" quat="1 0 0 0">
       <site name="imu" size="0.01" pos="0 0 0" />
       <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="mounting_plate" contype="1" conaffinity="0" density="0" group="1" class="visualgeom" />
       <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="mounting_plate" />
@@ -49,9 +48,7 @@
         <inertial pos="0.000243 -0.000105 0.047" quat="0.999919 0.00366383 -0.00493351 -0.0111249" mass="0.253" diaginertia="0.00017901 0.000176003 8.95867e-05" />
         <joint name="crane_x7_shoulder_fixed_part_pan_joint" pos="0 0 0" axis="0 0 1" range="-2.74017 2.74017" actuatorfrcrange="-10 10" damping="1e-06" frictionloss="0.2" />
         <geom size="0.0334 0.01475" pos="0 0 0.0296" type="cylinder" rgba="0.95 0.95 0.95 1" contype="1" conaffinity="0" density="0" group="1" class="visualgeom" />
-        <!-- <geom type="cylinder" rgba="0.95 0.95 0.95 1" pos="0 0 0.0296" /> -->
         <geom size="0.034 0.02455" pos="0 0 0.064" quat="0.707107 0.707106 0 0" type="cylinder" rgba="0.95 0.95 0.95 1" contype="1" conaffinity="0" density="0" group="1" class="visualgeom" />
-        <!-- <geom type="cylinder" rgba="0.95 0.95 0.95 1" pos="0 0 0.064" quat="0.707107 0.707106 0 0" /> -->
         <body name="crane_x7_upper_arm_fixed_part_link" pos="0 0 0.064">
           <inertial pos="2.9315e-05 1.79674e-05 0.0323413" quat="0.70765 0.706547 0.00347624 -0.00329379" mass="0.143816" diaginertia="0.000185901 0.000143297 0.000106301" />
           <joint name="crane_x7_shoulder_revolute_part_tilt_joint" pos="0 0 0" axis="0 -1 0" range="-1.6057 1.6057" actuatorfrcrange="-10 10" damping="1e-06" frictionloss="0.2" />
@@ -93,29 +90,22 @@
                   <joint name="crane_x7_lower_arm_revolute_part_joint" pos="0 0 0" axis="0 -1 0" range="-1.5708 1.5708" actuatorfrcrange="-4 4" damping="1e-06" frictionloss="0.2" />
                   <geom quat="0.707107 0.707106 0 0" type="mesh" rgba="0.95 0.95 0.95 1" mesh="wrist" contype="1" conaffinity="0" density="0" group="1" class="visualgeom" />
                   <geom type="mesh" rgba="0.95 0.95 0.95 1" mesh="wrist" quat="0.707107 0.707106 0 0" />
-                  <body name="crane_x7_gripper_base_link" pos="0 0 0.019">
-                    <inertial pos="0.000108 -0.00103 0.0208" quat="0.0785654 0.710177 0.0883506 0.694025" mass="0.121" diaginertia="4.29993e-05 4.13081e-05 3.19926e-05" />
-                    <joint name="crane_x7_wrist_joint" pos="0 0 0" axis="0 0 1" range="-2.9147 2.9147" actuatorfrcrange="-4 4" damping="1e-06" frictionloss="0.2" />
-                    <geom type="mesh" rgba="1 0.3 0.3 1" mesh="wide_two_finger_gripper_actuator" contype="1" conaffinity="0" density="0" group="1" class="visualgeom" />
-                    <geom type="mesh" rgba="1 0.3 0.3 1" mesh="wide_two_finger_gripper_actuator" />
-                    <body name="crane_x7_gripper_finger_a_link" pos="-0.012 0 0.024">
-                      <inertial pos="-0.00265 0.00354 0.0269" quat="0.81737 0.575529 0.000867923 -0.0259175" mass="0.0158" diaginertia="1.01113e-05 6.42734e-06 4.75141e-06" />
-                      <joint name="crane_x7_gripper_finger_a_joint" pos="0 0 0" axis="0 -1 0" range="-0.0872665 1.5708" actuatorfrcrange="-4 4" damping="1e-06" frictionloss="0.8" />
-                      <geom quat="0.707107 0.707106 0 0" type="mesh" rgba="1 0.3 0.3 1" mesh="wide_two_finger_gripper_finger_a" contype="1" conaffinity="0" density="0" group="1" class="visualgeom" />
-                      <geom type="mesh" rgba="1 0.3 0.3 1" mesh="wide_two_finger_gripper_finger_a" quat="0.707107 0.707106 0 0" />
+
+                 
+                    <body name="striker_joint_link" pos="0 0 0">
+                      <inertial pos="0 0 0.075" mass="0.031809" diaginertia="0.000060 0.000060 0.000000" />
+                      <geom pos="0 0 0.075" type="cylinder" size="0.005 0.075" rgba="0.3 0.3 0.3 1"  class="visualgeom"/>
+
+                      <body name="striker_mallet" pos="0 0 0.15">
+                        <inertial pos="0 0 0.0682827" mass="0.283" diaginertia="0.005 0.005 0.005"/>
+                        <joint name="striker_joint_1" pos="0 0 0" axis="0 1 0" range="-1.5708 1.5708" damping="0.0"/>
+                        <joint name="striker_joint_2" pos="0 0 0" axis="1 0 0" range="-1.5708 1.5708" damping="0.0"/>
+                        
+                        <geom type="mesh" rgba="0.2 0.5 1.0 1" mesh="EE_mallet_foam" class="visualgeom" contype="1" conaffinity="15"/>
+                        
+                        <site name="ee_site" pos="0 0 0.06" size="0.01" rgba="0 1 0 1" />
+                      </body>
                     </body>
-                    <body name="crane_x7_gripper_finger_b_link" pos="0.012 0 0.024">
-                      <inertial pos="0.00301 0.00285 0.0309" quat="0.851768 0.521016 0.0159772 0.0527074" mass="0.0139" diaginertia="7.52043e-06 4.48055e-06 3.93902e-06" />
-                      <joint name="crane_x7_gripper_finger_b_joint" pos="0 0 0" axis="0 1 0" range="-0.0872665 1.5708" actuatorfrcrange="-4 4" damping="1e-06" frictionloss="0.8" />
-                      <geom quat="0.707107 0.707106 0 0" type="mesh" rgba="1 0.3 0.3 1" mesh="wide_two_finger_gripper_finger_b" contype="1" conaffinity="0" density="0" group="1" class="visualgeom" />
-                      <geom type="mesh" rgba="1 0.3 0.3 1" mesh="wide_two_finger_gripper_finger_b" quat="0.707107 0.707106 0 0" />
-                    </body>
-                    <body name="racket" pos="0 0 0">
-                      <geom name="racket_handle" type="cylinder" size="0.01 0.1" pos="0 0 0" rgba="1 0.3 0.3 1" />
-                      <geom name="racket_head" type="cylinder" size="0.05 0.01" pos="0 0 0.1" rgba="1 0.3 0.3 1" />
-                      <site name="ee_site" pos="0 0 0" size="0.01" rgba="0 1 0 1" />
-                    </body>
-                  </body>
                 </body>
               </body>
             </body>
@@ -132,9 +122,6 @@
     <motor name="crane_x7_upper_arm_revolute_part_rotate_joint" joint="crane_x7_upper_arm_revolute_part_rotate_joint" ctrllimited="true" ctrlrange="-4 4" gear="1" />
     <motor name="crane_x7_lower_arm_fixed_part_joint" joint="crane_x7_lower_arm_fixed_part_joint" ctrllimited="true" ctrlrange="-4 4" gear="1" />
     <motor name="crane_x7_lower_arm_revolute_part_joint" joint="crane_x7_lower_arm_revolute_part_joint" ctrllimited="true" ctrlrange="-4 4" gear="1" />
-    <motor name="crane_x7_wrist_joint" joint="crane_x7_wrist_joint" ctrllimited="true" ctrlrange="-4 4" gear="1" />
-    <motor name="crane_x7_gripper_finger_a_joint" joint="crane_x7_gripper_finger_a_joint" ctrllimited="true" ctrlrange="-4 4" gear="1" />
-    <motor name="crane_x7_gripper_finger_b_joint" joint="crane_x7_gripper_finger_b_joint" ctrllimited="true" ctrlrange="-4 4" gear="1" />
   </actuator>
 
   <sensor>
@@ -156,15 +143,7 @@
     <actuatorpos name="crane_x7_lower_arm_revolute_part_joint_p" actuator="crane_x7_lower_arm_revolute_part_joint" />
     <actuatorvel name="crane_x7_lower_arm_revolute_part_joint_v" actuator="crane_x7_lower_arm_revolute_part_joint" />
     <actuatorfrc name="crane_x7_lower_arm_revolute_part_joint_f" actuator="crane_x7_lower_arm_revolute_part_joint" noise="0.001" />
-    <actuatorpos name="crane_x7_wrist_joint_p" actuator="crane_x7_wrist_joint" />
-    <actuatorvel name="crane_x7_wrist_joint_v" actuator="crane_x7_wrist_joint" />
-    <actuatorfrc name="crane_x7_wrist_joint_f" actuator="crane_x7_wrist_joint" noise="0.001" />
-    <actuatorpos name="crane_x7_gripper_finger_a_joint_p" actuator="crane_x7_gripper_finger_a_joint" />
-    <actuatorvel name="crane_x7_gripper_finger_a_joint_v" actuator="crane_x7_gripper_finger_a_joint" />
-    <actuatorfrc name="crane_x7_gripper_finger_a_joint_f" actuator="crane_x7_gripper_finger_a_joint" noise="0.001" />
-    <actuatorpos name="crane_x7_gripper_finger_b_joint_p" actuator="crane_x7_gripper_finger_b_joint" />
-    <actuatorvel name="crane_x7_gripper_finger_b_joint_v" actuator="crane_x7_gripper_finger_b_joint" />
-    <actuatorfrc name="crane_x7_gripper_finger_b_joint_f" actuator="crane_x7_gripper_finger_b_joint" noise="0.001" />
+    
     <framequat name="orientation" objtype="site" noise="0.001" objname="imu" />
     <gyro name="angular-velocity" site="imu" noise="0.005" cutoff="34.9" />
   </sensor>
