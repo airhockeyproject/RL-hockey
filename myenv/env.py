@@ -148,9 +148,9 @@ class MyRobotEnv(MujocoEnv):
         
         # 3. action_space を再定義
         # 目標位置(x,y,z)の範囲 (ロボットのワークスペースに合わせる)
-        pos_limits = np.array([1.0, 1.0, 0]) 
+        pos_limits = np.array([1.0, 1.0, 0.005]) 
         # 目標速度(vx,vy,vz)の範囲
-        vel_limits = np.array([1.5, 1.5, 0])
+        vel_limits = np.array([1.5, 1.5, 0.001])
         
         action_low = np.concatenate([-pos_limits, -vel_limits])
         action_high = np.concatenate([pos_limits, vel_limits])
@@ -253,7 +253,7 @@ class MyRobotEnv(MujocoEnv):
         # do_simulationにはスケーリング前のトルクを渡すのが一般的
         # ここでは ArmModel の set_ctrl を使って制御入力を設定する例を示す
         final_torques = self.arm.set_ctrl(ik_action * self.model.actuator_ctrlrange[self.arm.actuator_ids, 1])
-        print(self.puck.get_pos())
+        # print(self.puck.get_pos())
         # print(final_torques)
         self.do_simulation(final_torques, self.frame_skip)
         obs = self._get_obs()
@@ -266,7 +266,7 @@ class MyRobotEnv(MujocoEnv):
 
     def _is_done(self):
         ee_pos = self.arm.get_site_pos()
-        flag = ee_pos[-1] >0.2
+        flag = ee_pos[-1] >0.01
         return flag
 
     def _get_obs(self):
@@ -317,12 +317,11 @@ class MyRobotEnv(MujocoEnv):
 
         # if ee_pos[2] < 0:
         #     reward -= 1.0
-        print(reward)
+        # print(reward)
         return reward
 
 
     def reset_model(self):
-        print("-----------------------------------------------------------------------")
         self.step_cnt = 0
         # qvel = self.init_qvel
 
@@ -335,17 +334,17 @@ class MyRobotEnv(MujocoEnv):
         )
 
         # パック初期化
-        # theta = np.random.uniform(0, 2 * np.pi)
-        theta = - np.pi
-        puck_speed = np.random.uniform(0.5, 1.5)
+        theta = np.random.uniform(np.pi/2 , 3*np.pi/2) # ランダムな角度を選択
+        # theta = - np.pi
+        puck_speed = np.random.uniform(1.5, 4.5)
         qpos += self.puck.set_pos(
             [
                 np.random.uniform(*self.puck_x_range),
-                # np.random.uniform(*self.puck_y_range),
-                0
+                np.random.uniform(*self.puck_y_range),
+                
             ]
         )
-        qvel += self.puck.set_pos(
+        qvel += self.puck.set_vel(
             [
                 puck_speed * np.cos(theta),
                 puck_speed * np.sin(theta),
