@@ -10,7 +10,10 @@
     <worldbody>
         <attach model="table_asset" prefix=""/>
 
-        <body name="robot_A" pos="0 0 0"> <attach model="arm_asset" prefix=""/>
+        <body name="robot_A" pos="0 0 0"> <attach model="arm_asset" prefix="robot_A_"/>
+        </body>
+
+        <body name="robot_B" pos="-2 0 0"> <attach model="arm_asset" prefix="robot_B_"/>
         </body>
     </worldbody>
 </mujoco>
