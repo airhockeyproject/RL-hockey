@@ -1,5 +1,5 @@
 <mujoco model="air_hockey_robot_env">
-    <compiler angle="radian" coordinate="local" meshdir="/workspace/RL-hockey/assets"/>
+    <compiler angle="radian" coordinate="local" meshdir="/workspace/RL-hockey/assets/meshes"/>
     <option timestep="0.002"/>
 
     <asset>
@@ -9,7 +9,6 @@
 
     <worldbody>
         <attach model="table_asset" prefix=""/>
-
         <body name="robot_A" pos="0 0 0"> <attach model="arm_asset" prefix=""/>
         </body>
     </worldbody>

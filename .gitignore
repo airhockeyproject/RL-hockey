@@ -3,3 +3,7 @@ uv.lock
 __pycache__/
 logs/
 models/
+models_hockey/*
+!sac_hockey_final.zip 
+*.csv
+*.TXT
