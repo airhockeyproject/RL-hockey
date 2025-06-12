@@ -148,11 +148,12 @@ class MyRobotEnv(MujocoEnv):
         
         # 3. action_space を再定義
         # 目標位置(x,y,z)の範囲 (ロボットのワークスペースに合わせる)
-        pos_limits = np.array([1.0, 1.0, 0.005]) 
+        pos_limits = np.array([1.0, 1.0, 0.001]) 
         # 目標速度(vx,vy,vz)の範囲
         vel_limits = np.array([1.5, 1.5, 0.001])
         
         action_low = np.concatenate([-pos_limits, -vel_limits])
+        action_low[2] = 0.0
         action_high = np.concatenate([pos_limits, vel_limits])
         action_high[0] = -0.7
         
@@ -259,14 +260,19 @@ class MyRobotEnv(MujocoEnv):
         obs = self._get_obs()
         reward = self._compute_reward(obs, action)
         done = self._is_done()
+        if done:
+            reward -=1000
+        if self.step_cnt%100 == 0:
+            reward += self.step_cnt * 3
         truncated = True if self.step_cnt > self.step_cnt_threshold else False
+        
         info = {}
 
         return obs, reward, done, truncated, info
 
     def _is_done(self):
         ee_pos = self.arm.get_site_pos()
-        flag = ee_pos[-1] >0.01
+        flag = ee_pos[-1] >0.02
         return flag
 
     def _get_obs(self):
@@ -302,22 +308,21 @@ class MyRobotEnv(MujocoEnv):
         reward = 0.0
         
         if self.hit_puck_this_step:
-            reward += 10.0 
+            reward += 10000.0 
             print("ヒット！ 🏒") 
 
         if self.puck.get_vel()[0] < 0:
             ee_pos = self.arm.get_site_pos()[:2]
             puck_pos, _ = self.puck.get_pos()[:2]
             dist_to_puck = np.linalg.norm(ee_pos - puck_pos)
-            reward += (1.0 - np.tanh(dist_to_puck * 5.0)) * 0.5 
+            reward += np.tanh((0.1-dist_to_puck) * 5.0) * 30 
         
         if self.puck.get_vel()[0] > 0:
-            dist_to_puck = np.linalg.norm(self.arm.get_site_vel())
-            reward -= dist_to_puck
+            vel = np.linalg.norm(self.arm.get_site_vel())
+            reward -= 5*vel
 
-        # if ee_pos[2] < 0:
-        #     reward -= 1.0
-        # print(reward)
+        # reward -= 5000*self.arm.get_site_pos()[-1] # z軸の高さが高いほどペナルティ
+
         return reward
 
 
@@ -334,9 +339,9 @@ class MyRobotEnv(MujocoEnv):
         )
 
         # パック初期化
-        theta = np.random.uniform(np.pi/2 , 3*np.pi/2) # ランダムな角度を選択
+        theta = np.random.uniform(np.pi/2+(np.pi/12) , 3*np.pi/2-(np.pi/12)) # ランダムな角度を選択
         # theta = - np.pi
-        puck_speed = np.random.uniform(1.5, 4.5)
+        puck_speed = np.random.uniform(2.0, 4.5)
         qpos += self.puck.set_pos(
             [
                 np.random.uniform(*self.puck_x_range),
@@ -363,6 +368,5 @@ class MyRobotEnv(MujocoEnv):
         ]
         assert len(geom_indices) == 1
         x, y, _ = self.model.geom_size[geom_indices[0]]
-        self.puck_x_range = np.array([-x, x]) * 0.8
-        self.puck_y_range = np.array([-y,
-         y]) * 0.8
+        self.puck_x_range = np.array([-0.6, x*0.8])
+        self.puck_y_range = np.array([-y,y]) * 0.8
