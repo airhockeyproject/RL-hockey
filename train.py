@@ -7,6 +7,28 @@ from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from stable_baselines3.common.callbacks import CheckpointCallback
 import numpy as np
 from tqdm import tqdm
+import argparse
+import torch
+
+is_cuda_avaliable = torch.cuda.is_available()
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="強化学習のコード")
+    # 学習設定
+    parser.add_argument("--train", action="store_true", help="学習するかどうか")
+    parser.add_argument("--experiment_name", type=str, required=True, help="実験名")
+    parser.add_argument("--total_timesteps", type=int, default=100000, help="学習ロールアウト数")
+    parser.add_argument("--log_interval", type=int, default=4000, help="ログ出力の間隔")
+    
+    # モデル関連
+    parser.add_argument("--model_save_dir", type=str, required=True, help="モデルの保存ディレクトリ")
+    parser.add_argument("--model_path", type=str, default=None, help="再開するモデルの重みのパス")
+    parser.add_argument("--save_freq", type=int, default=20000, help="モデルの保存頻度")
+    
+    # 環境設定
+    parser.add_argument("--num_envs", type=int, default=8, help="環境並列数")
+    return parser.parse_args()
+
 
 def make_env():
     return gym.make("AirHockey-v0")
@@ -21,51 +43,53 @@ def render(images):
             break
     cv2.destroyAllWindows()
 
-def train(model_path=None, train=True):
-    # 保存用のディレクトリを作成
-    os.makedirs("models", exist_ok=True)
-    os.makedirs("logs", exist_ok=True)
-    
-    # 並列数を指定（CPUコア数に応じて調整）
-    num_envs = 8
-    env = SubprocVecEnv([make_env for _ in range(num_envs)])
-    env = VecMonitor(env, "logs/monitor")
-    
-    # チェックポイントコールバックの設定
-    checkpoint_callback = CheckpointCallback(
-        save_freq=50000,  # 50000ステップごとに保存（環境数も考慮）
-        save_path="./models/",
-        name_prefix="sac_airhockey",
-        save_replay_buffer=True,
-        save_vecnormalize=True,
-    )
-    
-    # モデルの作成と学習
-    if model_path is None:
-        model = SAC("MlpPolicy", env, verbose=True, device="cuda")
-    else:
-        model = SAC.load(model_path, env, Verbose=True, device="cuda")
 
-    if train:
-        model.learn(total_timesteps=100000, callback=checkpoint_callback)
-        model.save("./models/sac_airhockey_final")
-    
-    
-    # 評価用に単一環境を作成（並列環境では render できない）
-    eval_env = make_env()
-    obs, _ = eval_env.reset()
+def load_model(env, model_path=None):
+    device = "cuda" if is_cuda_avaliable else "cpu"
+    if model_path is None:
+        model = SAC("MlpPolicy", env, verbose=True, device=device)
+    else:
+        model = SAC.load(model_path, env, Verbose=True, device=device)
+    return model
+        
+
+def evaluate(model):
+    env = make_env()
+    obs, _ = env.reset()
     images = []
-    observations = []
     for _ in tqdm(range(1000)):
-        action, _state = model.predict(obs, deterministic=True)
-        obs, reward, terminated, truncated, info = eval_env.step(action)
-        done = terminated or truncated
-        observations.append(obs)
-        images.append(eval_env.render())
-        if done:
-            obs, _ = eval_env.reset()
-    render(images)
+        action, _ = model.predict(obs, deterministic=True)
+        obs, _, terminated, truncated, _ = env.step(action)
+        images.append(env.render())
+        if terminated or truncated: env.reset()
+    render(images) 
+
+
+def main():
+    args = parse_args()
+    env = VecMonitor(
+        SubprocVecEnv([make_env for _ in range(args.num_envs)]), 
+        "logs/monitor"
+    ) 
+    model = load_model(env, args.model_path)
+
+    if args.train:
+        checkpoint_callback = CheckpointCallback(
+            save_freq=args.save_freq,
+            save_path=args.model_save_dir,
+            name_prefix=args.experiment_name,
+            save_replay_buffer=True,
+            save_vecnormalize=True,
+        )
+        model.learn(
+            total_timesteps=args.total_timesteps,
+            log_interval=args.log_interval, 
+            callback=checkpoint_callback
+        )
+        save_path = os.path.join(args.model_save_dir, args.experiment_name + "_final")
+        model.save(save_path)
+    
+    evaluate(model)
 
 if __name__=="__main__":
-    # train("./models/sac_airhockey_final", False)
-    train()
+    main()
