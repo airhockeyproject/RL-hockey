@@ -346,15 +346,15 @@ class MyRobotEnv(MujocoEnv):
         ee_y   = ee_pos[1]
 
         # ➊  X 方向合わせ込みパラメータ
-        x_align_tol   = 0.05   # [m]  5 cm 以内でヒットしやすい
-        x_align_bonus = 50.0   # ごほうび
+        haba_align_tol   = 0.05   # [m]  5 cm 以内でヒットしやすい
+        haba_align_bonus = 50.0   # ごほうび
 
         # ➋  EE とパックの X 差
-        dx = abs(ee_pos[0] - puck_pos[0])
+        d_haba = abs(ee_pos[1] - puck_pos[1])
 
         # ➌  条件を満たせばボーナス
-        if dx <= x_align_tol:
-            reward += x_align_bonus
+        if d_haba <= haba_align_tol:
+            reward += haba_align_bonus
 
 
         
