@@ -371,7 +371,7 @@ class MyRobotEnv(MujocoEnv):
             speed_excess = max(0.0, ee_speed - speed_tol)
             reward -= speed_gain * speed_excess   # 線形罰 … 1 m/s 超過で -1.5
 
-    return reward
+        return reward
 
 
     def reset_model(self):
