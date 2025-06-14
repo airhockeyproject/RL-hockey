@@ -306,51 +306,47 @@ class MyRobotEnv(MujocoEnv):
             
     def _compute_reward(self, obs, action):
         reward = 0.0
+        engage_dist = 0.40          # 40 cm 以内を “交戦距離” と定義
 
-        # 1. 現在のパック位置・速度を取得
-        puck_pos = self.puck.get_pos()  # [x, y]
-        puck_vel = self.puck.get_vel()  # [vx, vy]
-    
-        # 2. アームの初期X座標を取得（予測地点）
+        puck_pos = self.puck.get_pos()       # [x, y]
+        puck_vel = self.puck.get_vel()       # [vx, vy]
+
+        # future predection
         predicted_x = self.init_site_pos[0]
-    
-        # 3. パックがX軸上でアームの初期位置を通過する時のY座標を予測（R）
         if abs(puck_vel[0]) > 1e-5:
-            t = (predicted_x - puck_pos[0]) / puck_vel[0]  # いつ通過するか
-            predicted_y = puck_pos[1] + puck_vel[1] * t    # その時のY位置（R）
+            t = (predicted_x - puck_pos[0]) / puck_vel[0]
+            predicted_y = puck_pos[1] + puck_vel[1] * t
             valid_prediction = t > 0
         else:
             predicted_y = puck_pos[1]
             valid_prediction = False
-    
-        # 4. エンドエフェクタの現在位置
-        ee_pos = self.arm.get_site_pos()  # [x, y, z]
-        ee_y = ee_pos[1]
-    
-        # 5. 予測位置 R に近づくほど報酬を高く（ただし未来予測が有効な場合のみ）
+
+        # Endeffecter position
+        ee_pos = self.arm.get_site_pos()     # [x, y, z]
+        ee_y   = ee_pos[1]
+
         if valid_prediction:
-            dist = abs(ee_y - predicted_y)
-            reward += np.tanh((0.2 - dist) * 5.0) * 50  # 高速で近づくと最大50の報酬
-        else:
-            reward += 0  # 速度ゼロなどで予測不能時、なにもしない
+            puck_ee_xy_dist = np.linalg.norm(puck_pos - ee_pos[:2])
+            if puck_ee_xy_dist <= engage_dist:
+                dist = abs(ee_y - predicted_y)
+                reward += np.tanh((0.2 - dist) * 5.0) * 50
 
-
-        
         if self.hit_puck_this_step:
-            reward += 10000.0 
-            print("ヒット！ 🏒") 
+            reward += 10_000.0
+            print("ヒット！ 🏒")
 
-        if self.puck.get_vel()[0] < 0:
-            ee_pos = self.arm.get_site_pos()[:2]
-            puck_pos, _ = self.puck.get_pos()[:2]
-            dist_to_puck = np.linalg.norm(ee_pos - puck_pos)
-            reward += np.tanh((0.1-dist_to_puck) * 5.0) * 30 
-        
-        if self.puck.get_vel()[0] > 0:
-            vel = np.linalg.norm(self.arm.get_site_vel())
-            reward -= 5*vel
 
-        # reward -= 5000*self.arm.get_site_pos()[-1] # z軸の高さが高いほどペナルティ
+        if puck_vel[0] < 0:
+            ee_xy   = ee_pos[:2]
+            puck_xy = puck_pos[:2]
+            dist_to_puck = np.linalg.norm(ee_xy - puck_xy)
+            reward += np.tanh((0.1 - dist_to_puck) * 5.0) * 30
+
+        if puck_vel[0] > 0:
+            ee_speed = np.linalg.norm(self.arm.get_site_vel())
+            speed_excess = max(0.0, ee_speed - 0.2)      # 0.2 m/s までは許容
+            reward -= 2.0 * speed_excess
+
 
         return reward
 
