@@ -261,7 +261,7 @@ class MyRobotEnv(MujocoEnv):
         reward = self._compute_reward(obs, action)
         done = self._is_done()
         if done:
-            reward -=1000
+            reward -=200
         if self.step_cnt%100 == 0:
             reward += self.step_cnt * 3
         truncated = True if self.step_cnt > self.step_cnt_threshold else False
@@ -343,6 +343,13 @@ class MyRobotEnv(MujocoEnv):
         # ---------- EE の現在位置 ----------
         ee_pos = self.arm.get_site_pos()        # [x, y, z]
         ee_y   = ee_pos[1]
+        # 5) EE を高く持ち上げたときの線形ペナルティ
+        height_thresh   = 0.02      # しきい値 [m] （= 2 cm）
+        height_scale    = 5_000     # 1 m 超過あたりの罰
+                                 #  → 1 cm 超過で −50, 5 cm 超過で −250
+
+        excess_z = max(0.0, ee_pos[2] - height_thresh)
+        reward  -= height_scale * excess_z
     
         # ---------- 1) 予測 Y 距離 ±報酬／罰 ----------
         if valid_prediction:
