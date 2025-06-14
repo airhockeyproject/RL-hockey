@@ -106,10 +106,34 @@ def train_rl_agent(model_path=None, train=True, total_timesteps=500000):
     total_reward = 0
     num_hits = 0
 
+    os.makedirs("videos", exist_ok=True)
+    out_path = "videos/evaluation.mp4"
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    fps = 30
+    frame_size = (640, 480)
+    writer = cv2.VideoWriter(out_path, fourcc, fps, frame_size)
+
+
+
+
+
+
+
+
     for i in tqdm(range(1000)): # 評価ステップ数
         action, _state = model.predict(obs, deterministic=True) # 決定論的に行動を選択
         obs, reward, terminated, truncated, info = eval_env.step(action)
         total_reward += reward
+
+        frame = eval_env.render()  # RGB ndarray
+        frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        frame_resized = cv2.resize(frame_bgr, frame_size)
+        images.append(frame)
+        writer.write(frame_resized)
+
+
+
+
         if info.get("hit_puck", False):
             num_hits += 1
             
@@ -121,6 +145,7 @@ def train_rl_agent(model_path=None, train=True, total_timesteps=500000):
             num_hits = 0
             
     eval_env.close()
+    writer.release()
     print("評価のレンダリング...")
     render(images)
     env.close()
@@ -130,10 +155,10 @@ if __name__ == "__main__":
     # --- モードを選択 ---
 
     # Option 1: 新規に学習を開始
-     train_rl_agent(train=True, total_timesteps=1000000) # ステップ数を増やす
+    #train_rl_agent(train=True, total_timesteps=1000000) # ステップ数を増やす
 
     # Option 2: 既存モデルをロードして学習を再開
     # train_rl_agent(model_path="./models_hockey/sac_hockey_final.zip", train=True, total_timesteps=2000000)
 
     # Option 3: 既存モデルをロードして評価のみ実行
-    #train_rl_agent(model_path="./models_hockey/sac_hockey_final.zip", train=False)
+    train_rl_agent(model_path="./models_hockey/sac_hockey_final.zip", train=False)
