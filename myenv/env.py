@@ -353,7 +353,7 @@ class MyRobotEnv(MujocoEnv):
         dx = abs(ee_pos[0] - puck_pos[0])
 
         # ➌  条件を満たせばボーナス
-        if dx <= x_align_tol and abs(M)<=0.20:
+        if dx <= x_align_tol:
             reward += x_align_bonus
 
 
