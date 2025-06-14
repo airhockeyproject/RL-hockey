@@ -305,50 +305,73 @@ class MyRobotEnv(MujocoEnv):
                 return
             
     def _compute_reward(self, obs, action):
-        reward = 0.0
-        engage_dist = 0.40          # 40 cm 以内を “交戦距離” と定義
+    """
+    改良版 reward 関数（_compute_reward だけを変更）
+    ------------------------------------------------
+    * 交戦距離 0.30 m 内でだけ予測点 ±報酬／罰を与える
+    * 1 step あたり ±30 前後の dense-reward を中心にしつつ
+      ヒット成功で +3 000、EE を振り回し過ぎると小さな罰
+    * 他メソッドや定数は一切触らず、数値を直接ここに埋め込む
+    """
+    reward = 0.0
 
-        puck_pos = self.puck.get_pos()       # [x, y]
-        puck_vel = self.puck.get_vel()       # [vx, vy]
+    # ─── 調整済みハイパパラメータ ───────────────────────
+    engage_dist     = 0.30    # EE–パック XY 距離 [m]   … “交戦距離”
+    pred_gain       = 30.0    # 予測 Y ごほうび／罰の最大値
+    pred_tol        = 0.15    # 予測 Y 距離 [m]        … ±が反転する境界
+    approach_gain   = 20.0    # 接近ごほうびの最大値
+    approach_tol    = 0.15    # EE–パック 距離 [m]     … 最大ごほうび範囲
+    speed_tol       = 0.25    # EE 速度 [m/s]          … ここまでは罰なし
+    speed_gain      = 1.5     # 速度 1 m/s 超過あたりの罰
+    hit_reward      = 3000.0  # ヒット成功ボーナス
+    # ────────────────────────────────────────────────
 
-        # future predection
-        predicted_x = self.init_site_pos[0]
-        if abs(puck_vel[0]) > 1e-5:
-            t = (predicted_x - puck_pos[0]) / puck_vel[0]
-            predicted_y = puck_pos[1] + puck_vel[1] * t
-            valid_prediction = t > 0
-        else:
-            predicted_y = puck_pos[1]
-            valid_prediction = False
+    # ---------- パックの状態 ----------
+    puck_pos = self.puck.get_pos()          # [x, y]
+    puck_vel = self.puck.get_vel()          # [vx, vy]
 
-        # Endeffecter position
-        ee_pos = self.arm.get_site_pos()     # [x, y, z]
-        ee_y   = ee_pos[1]
+    # ---------- 未来の通過点 (R) ----------
+    predicted_x = self.init_site_pos[0]
+    if abs(puck_vel[0]) > 1e-5:
+        t = (predicted_x - puck_pos[0]) / puck_vel[0]
+        predicted_y = puck_pos[1] + puck_vel[1] * t
+        valid_prediction = t > 0
+    else:
+        predicted_y = puck_pos[1]
+        valid_prediction = False
 
-        if valid_prediction:
-            puck_ee_xy_dist = np.linalg.norm(puck_pos - ee_pos[:2])
-            if puck_ee_xy_dist <= engage_dist:
-                dist = abs(ee_y - predicted_y)
-                reward += np.tanh((0.2 - dist) * 5.0) * 50
+    # ---------- EE の現在位置 ----------
+    ee_pos = self.arm.get_site_pos()        # [x, y, z]
+    ee_y   = ee_pos[1]
 
-        if self.hit_puck_this_step:
-            reward += 10_000.0
-            print("ヒット！ 🏒")
+    # ---------- 1) 予測 Y 距離 ±報酬／罰 ----------
+    if valid_prediction:
+        puck_ee_xy_dist = np.linalg.norm(puck_pos - ee_pos[:2])
+        if puck_ee_xy_dist <= engage_dist:
+            dist = abs(ee_y - predicted_y)
+            k = 5.0 / pred_tol                     # tanh 勾配
+            reward += np.tanh((pred_tol - dist) * k) * pred_gain
+            #  dist < pred_tol  → 正報酬 (最大 ≈ +pred_gain)
+            #  dist > pred_tol  → 負報酬 (最小 ≈ –pred_gain)
 
+    # ---------- 2) ヒットごほうび ----------
+    if self.hit_puck_this_step:
+        reward += hit_reward
+        print("ヒット！ 🏒")
 
-        if puck_vel[0] < 0:
-            ee_xy   = ee_pos[:2]
-            puck_xy = puck_pos[:2]
-            dist_to_puck = np.linalg.norm(ee_xy - puck_xy)
-            reward += np.tanh((0.1 - dist_to_puck) * 5.0) * 30
+    # ---------- 3) パックがこちら向きのとき接近ごほうび ----------
+    if puck_vel[0] < 0:
+        dist_to_puck = np.linalg.norm(ee_pos[:2] - puck_pos)
+        k = 5.0 / approach_tol
+        reward += np.tanh((approach_tol - dist_to_puck) * k) * approach_gain
 
-        if puck_vel[0] > 0:
-            ee_speed = np.linalg.norm(self.arm.get_site_vel())
-            speed_excess = max(0.0, ee_speed - 0.2)      # 0.2 m/s までは許容
-            reward -= 2.0 * speed_excess
+    # ---------- 4) パックが相手側へ飛んだ後の EE 速度罰 ----------
+    if puck_vel[0] > 0:
+        ee_speed = np.linalg.norm(self.arm.get_site_vel())
+        speed_excess = max(0.0, ee_speed - speed_tol)
+        reward -= speed_gain * speed_excess   # 線形罰 … 1 m/s 超過で -1.5
 
-
-        return reward
+    return reward
 
 
     def reset_model(self):
