@@ -352,15 +352,15 @@ class MyRobotEnv(MujocoEnv):
         excess_z = max(0.0, ee_pos[2] - height_thresh)
         reward  -= height_scale * excess_z
     
-        # ---------- 1) 予測 Y 距離 ±報酬／罰 ----------
+        # ---------- 1) 予測 Y 距離ごほうび（罰なし） ----------
         if valid_prediction:
-            puck_ee_xy_dist = np.linalg.norm(puck_pos - ee_pos[:2])
-            if puck_ee_xy_dist <= engage_dist:
-                dist = abs(ee_y - predicted_y)
-                k = 5.0 / pred_tol                     # tanh 勾配
-                reward += np.tanh((pred_tol - dist) * k) * pred_gain
-                #  dist < pred_tol  → 正報酬 (最大 ≈ +pred_gain)
-                #  dist > pred_tol  → 負報酬 (最小 ≈ –pred_gain)
+            M = abs(ee_y - predicted_y)             # 予測到達点との距離 [m]
+            if M <= 0.30:                           # 台短辺の半幅 (=0.6/2)
+                reward += 100.0 * np.cos((M / 0.30) * (np.pi / 2))
+                # M=0       → +100
+                # M=0.30 m  → +0
+        # 0.30 m を超えると何もしない（報酬 0）
+
     
         # ---------- 2) ヒットごほうび ----------
         if self.hit_puck_this_step:
