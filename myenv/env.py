@@ -257,6 +257,7 @@ class MyRobotEnv(MujocoEnv):
         # print(self.puck.get_pos())
         # print(final_torques)
         self.do_simulation(final_torques, self.frame_skip)
+        self._check_puck_hit()
         obs = self._get_obs()
         reward = self._compute_reward(obs, action)
         done = self._is_done()
