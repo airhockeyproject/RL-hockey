@@ -386,6 +386,7 @@ class MyRobotEnv(MujocoEnv):
         )
 
         self.set_state(qpos, qvel)
+        self.init_site_pos = self.arm.get_site_pos().copy()  # 初期エンドエフェクタ位置を保存
         return self._get_obs()
 
     def configure_puck(self):
