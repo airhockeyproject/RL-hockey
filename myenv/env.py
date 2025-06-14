@@ -344,6 +344,20 @@ class MyRobotEnv(MujocoEnv):
         # ---------- EE の現在位置 ----------
         ee_pos = self.arm.get_site_pos()        # [x, y, z]
         ee_y   = ee_pos[1]
+
+        # ➊  X 方向合わせ込みパラメータ
+        x_align_tol   = 0.05   # [m]  5 cm 以内でヒットしやすい
+        x_align_bonus = 50.0   # ごほうび
+
+        # ➋  EE とパックの X 差
+        dx = abs(ee_pos[0] - puck_pos[0])
+
+        # ➌  条件を満たせばボーナス
+        if dx <= x_align_tol:
+            reward += x_align_bonus
+
+
+        
         # 5) EE を高く持ち上げたときの線形ペナルティ
         height_thresh   = 0.02      # しきい値 [m] （= 2 cm）
         height_scale    = 5_000     # 1 m 超過あたりの罰
